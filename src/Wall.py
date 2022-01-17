@@ -22,20 +22,27 @@ class Wall:
         
         # Sets the default parameters
         if 'position' not in self.parameters:
-            self.parameters['position'] = [0, 0, 0]        
+            self.parameters['position'] = [0, 0, 0]
+            # Si on ne met pas de paramètre position, le constructeur l'initialise à 0 par défaut. 
         if 'width' not in self.parameters:
             raise Exception('Parameter "width" required.')   
+            # Si on ne met pas de paramètre widht, cela renvoie une exception car ce paramètre est obligatoire.
         if 'height' not in self.parameters:
             raise Exception('Parameter "height" required.')   
+            # Si on ne met pas de paramètre height, cela renvoie une exception car ce paramètre est obligatoire.
         if 'orientation' not in self.parameters:
-            self.parameters['orientation'] = 0              
+            self.parameters['orientation'] = 0 
+            # Si on ne met pas de paramètre orientation, le constructeur l'initialise à 0 par défaut.             
         if 'thickness' not in self.parameters:
-            self.parameters['thickness'] = 0.2    
+            self.parameters['thickness'] = 0.2  
+            # Si on ne met pas de paramètre thickness, le constructeur l'initialise à 0,2 par défaut.
         if 'color' not in self.parameters:
-            self.parameters['color'] = [0.5, 0.5, 0.5]       
+            self.parameters['color'] = [0.5, 0.5, 0.5] 
+            # Si on ne met pas de paramètre color, le constructeur l'initialise à [0.5, 0.5, 0.5] par défaut.
             
         # Objects list
         self.objects = []
+        #Création d'une liste d'objets
 
         # Adds a Section for this object
         self.parentSection = Section({'width': self.parameters['width'], \
@@ -44,6 +51,7 @@ class Wall:
                                       'color': self.parameters['color'],
                                       'position': self.parameters['position']})
         self.objects.append(self.parentSection) 
+        #Création d'une section grâce aux paramètres vus au dessus, section est ajoutée à la liste d'objets.
         
     # Getter
     def getParameter(self, parameterKey):
@@ -62,12 +70,21 @@ class Wall:
         return None
     
     # Adds an object    
-    def add(self, x):    
+    def add(self, x):      
         # A compléter en remplaçant pass par votre code
-        pass        
+        findsection = self.findSection(x)   
+        self.objects.pop(findsection[0])
+        self.objects.extend(findsection[1].createNewSections(x))
+        return self    
                     
     # Draws the faces
     def draw(self):
         # A compléter en remplaçant pass par votre code
-        pass
-  
+        gl.glPushMatrix()
+        gl.glRotatef(self.parameters["orientation"],0,0,1)
+        gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_FILL)
+        self.parentSection.drawEdges()
+        for x in self.objects:
+            x.draw()
+        gl.glPopMatrix()
+        

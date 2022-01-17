@@ -39,6 +39,14 @@ class Configuration:
 
         # Initializes OpenGl
         self.initializeOpenGL()
+        gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_FILL) # on trace les faces : GL_FILL
+        gl.glBegin(gl.GL_QUADS) # Tracé d’un quadrilatère
+        gl.glColor3fv([0.5, 0.5, 0.5]) # Couleur gris moyen
+        gl.glVertex3fv([0, 0, 0])
+        gl.glVertex3fv([1, 0, 0])
+        gl.glVertex3fv([1, 0, 1])
+        gl.glVertex3fv([0, 0, 1])
+        gl.glEnd()
 
         # Initializes the tranformation matrix
         self.initializeTransformationMatrix()
@@ -74,7 +82,9 @@ class Configuration:
 
         gl.glMatrixMode(gl.GL_MODELVIEW)
         gl.glLoadIdentity()
-        gl.glTranslatef(0.0,0.0, self.parameters['screenPosition'])       
+        gl.glTranslatef(0.0,0.0, self.parameters['screenPosition']) 
+        
+        gl.glRotatef(-90, 1, 0, 0)
         
     # Getter
     def getParameter(self, parameterKey):
@@ -146,14 +156,28 @@ class Configuration:
         elif self.event.dict['unicode'] == 'a' or self.event.key == pygame.K_a:
             self.parameters['axes'] = not self.parameters['axes']
             pygame.time.wait(300)
+            
+        elif self.event.key == pygame.K_PAGEUP:
+            gl.glScalef(1.1,1.1,1.1)
+
+        elif self.event.key == pygame.K_PAGEDOWN:
+            gl.glScalef(1/1.1,1/1.1,1/1.1)
     
     # Processes the MOUSEBUTTONDOWN event
     def processMouseButtonDownEvent(self):
-        pass
+        if self.event.button == 4:
+            gl.glScalef(1.1,1.1,1.1)
+        elif self.event.button == 5:
+            gl.glScalef(1/1.1,1/1.1,1/1.1)
     
     # Processes the MOUSEMOTION event
     def processMouseMotionEvent(self):
-        pass
+        if pygame.mouse.get_pressed()[0] == 1:
+            gl.glRotatef(self.event.rel[1],1,0,0)
+            gl.glRotatef(self.event.rel[0],0,0,1)
+        elif pygame.mouse.get_pressed()[2] == 1:
+            gl.glTranslatef(self.event.rel[0],0,-self.event.rel[1])
+            
          
     # Displays on screen and processes events    
     def display(self): 

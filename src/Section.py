@@ -52,30 +52,81 @@ class Section:
 
     # Defines the vertices and faces 
     def generate(self):
-        self.vertices = [ 
                 # Définir ici les sommets
+        self.vertices = [ 
+                [0, 0, 0 ], 
+                [0, 0, self.parameters['height']], 
+                [self.parameters['width'], 0, self.parameters['height']],
+                [self.parameters['width'], 0, 0],
+                [self.parameters['width'],self.parameters['thickness'],0],
+                [self.parameters['width'],self.parameters['thickness'],self.parameters['height']],
+                [0,self.parameters['thickness'],self.parameters['height']],
+                [0,self.parameters['thickness'],0]
                 ]
+        # définir ici les faces
         self.faces = [
-                # définir ici les faces
+                [0,3,2,1],
+                [1,2,5,6],
+                [6,5,4,7],
+                [7,4,3,0],
+                [0,7,6,1],
+                [2,3,4,5]
                 ]   
 
     # Checks if the opening can be created for the object x
     def canCreateOpening(self, x):
         # A compléter en remplaçant pass par votre code
-        pass      
-        
+        if x.parameters["width"]+ x.parameters["position"][0]<= self.parameters["position"][0]+self.parameters["width"]:
+            if x.parameters["height"]+x.parameters["position"][2]<=self.parameters["position"][2]+ self.parameters["height"]:
+                return True
+        return False
     # Creates the new sections for the object x
     def createNewSections(self, x):
         # A compléter en remplaçant pass par votre code
-        pass              
+        if self.canCreateOpening(x) == True:
+            sect1 = Section({'position':self.parameters['position'],'width':x.parameters['position'][0],
+                     'height':self.parameters['height'],'thickness': self.parameters['thickness']})
+            
+            sect2 = Section({'position':[x.parameters['position'][0],x.parameters['position'][1],x.parameters['position'][2]+x.parameters['height']],
+                     'width':x.parameters['width'],
+                     'height':self.parameters['height']-x.parameters['position'][2]-x.parameters['height'],
+                     'thickness': self.parameters['thickness']})
+            
+            sect3 = Section({'position':[x.parameters['position'][0],self.parameters['position'][1],self.parameters['position'][2]],
+                     'width':x.parameters['width'],'height':x.parameters['position'][2],
+                     'thickness': x.parameters['thickness']})
+            
+            sect4 = Section({'position':[x.parameters['position'][0]+x.parameters['width'],x.parameters['position'][1],self.parameters['position'][2]],
+                     'width':self.parameters['width']-x.parameters['position'][0]-x.parameters['width'],
+                     'height':self.parameters['height'],'thickness': x.parameters['thickness']})
+            
+            return [sect1,sect2,sect3,sect4]                   
         
     # Draws the edges
     def drawEdges(self):
         # A compléter en remplaçant pass par votre code
-        pass           
+        gl.glPushMatrix()
+        gl.glTranslatef(self.parameters['position'][0],self.parameters['position'][1],self.parameters['position'][2])
+        gl.glPolygonMode(gl.GL_FRONT_AND_BACK,gl.GL_LINE)
+        gl.glBegin(gl.GL_QUADS)
+        for faces in self.faces:
+            gl.glColor3fv([0.1,0.1,0.1])
+            for vertice in faces : 
+                gl.glVertex3fv(self.vertices[vertice])
+        gl.glEnd()
+        gl.glPopMatrix()         
                     
     # Draws the faces
     def draw(self):
         # A compléter en remplaçant pass par votre code
-        pass
-  
+        self.drawEdges()
+        gl.glPushMatrix()
+        gl.glTranslatef(self.parameters['position'][0],self.parameters['position'][1],self.parameters['position'][2])
+        gl.glPolygonMode(gl.GL_FRONT_AND_BACK,gl.GL_FILL)
+        gl.glBegin(gl.GL_QUADS)
+        for faces in self.faces:
+            gl.glColor3fv([0.5,0.5,0.5])
+            for vertice in faces : 
+                gl.glVertex3fv(self.vertices[vertice])
+        gl.glEnd()
+        gl.glPopMatrix()
